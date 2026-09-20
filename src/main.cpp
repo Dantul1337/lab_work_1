@@ -1,5 +1,7 @@
 #include "pipe.h"
 #include "compressor_station.h"
+#include "storage.h"
+#include "input_utils.h"
 
 #include <iostream>
 
@@ -13,27 +15,26 @@ int main() {
     SetConsoleCP(CP_UTF8);
 #endif
 
-    std::cout << "Лабораторная: трубопроводный транспорт\n\n";
+    std::cout << "=== Лабораторная: трубопроводный транспорт (сборка №3) ===\n\n";
 
     Pipe pipe = inputPipe();
-    std::cout << "\nВведённые данные трубы:\n";
-    printPipe(pipe);
-
-    editPipeRepairStatus(pipe);
-    std::cout << "\nПосле редактирования:\n";
-    printPipe(pipe);
-
-    std::cout << "\n----------------------------------------\n\n";
-
     CompressorStation station = inputCompressorStation();
-    std::cout << "\nВведённые данные КС:\n";
+
+    std::cout << "\n--- Введённые данные ---\n";
+    printPipe(pipe);
     printCompressorStation(station);
 
-    startShop(station);
-    printCompressorStation(station);
+    std::string filename = readNonEmptyLine("\nИмя файла для сохранения: ");
+    saveToFile(filename, pipe, station);
 
-    stopShop(station);
-    printCompressorStation(station);
+    Pipe emptyPipe;
+    CompressorStation emptyStation;
+
+    std::cout << "\n--- Загружаем обратно из файла ---\n";
+    if (loadFromFile(filename, emptyPipe, emptyStation)) {
+        printPipe(emptyPipe);
+        printCompressorStation(emptyStation);
+    }
 
     return 0;
 }
