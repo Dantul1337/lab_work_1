@@ -1,0 +1,10 @@
+[PIPE]
+mark=1
+lengthKm=1.000000
+diameterMm=2
+underRepair=0
+[STATION]
+name=1
+totalShops=1
+shopsInOperation=1
+stationClass=1

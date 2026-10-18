@@ -1,0 +1,10 @@
+[PIPE]
+mark=Северный поток-1
+lengthKm=1000.000000
+diameterMm=300
+underRepair=0
+[STATION]
+name=АААА
+totalShops=123
+shopsInOperation=32
+stationClass=4

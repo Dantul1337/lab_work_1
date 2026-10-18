@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <utility>
 
 namespace
 {
@@ -65,8 +66,8 @@ namespace
 
 }
 
-bool saveToFile(const std::string &filename, const Pipe &pipe,
-                const CompressorStation &station)
+bool saveToFile(const std::string &filename, const Pipe *pipe,
+                const CompressorStation *station)
 {
     std::ofstream out(filename);
     if (!out.is_open())
@@ -75,17 +76,23 @@ bool saveToFile(const std::string &filename, const Pipe &pipe,
         return false;
     }
 
-    out << "[PIPE]\n";
-    writeLine(out, "mark", pipe.mark);
-    writeLine(out, "lengthKm", std::to_string(pipe.lengthKm));
-    writeLine(out, "diameterMm", std::to_string(pipe.diameterMm));
-    writeLine(out, "underRepair", pipe.underRepair ? "1" : "0");
+    if (pipe)
+    {
+        out << "[PIPE]\n";
+        writeLine(out, "mark", pipe->mark);
+        writeLine(out, "lengthKm", std::to_string(pipe->lengthKm));
+        writeLine(out, "diameterMm", std::to_string(pipe->diameterMm));
+        writeLine(out, "underRepair", pipe->underRepair ? "1" : "0");
+    }
 
-    out << "[STATION]\n";
-    writeLine(out, "name", station.name);
-    writeLine(out, "totalShops", std::to_string(station.totalShops));
-    writeLine(out, "shopsInOperation", std::to_string(station.shopsInOperation));
-    writeLine(out, "stationClass", std::to_string(station.stationClass));
+    if (station)
+    {
+        out << "[STATION]\n";
+        writeLine(out, "name", station->name);
+        writeLine(out, "totalShops", std::to_string(station->totalShops));
+        writeLine(out, "shopsInOperation", std::to_string(station->shopsInOperation));
+        writeLine(out, "stationClass", std::to_string(station->stationClass));
+    }
 
     if (!out.good())
     {
@@ -97,8 +104,8 @@ bool saveToFile(const std::string &filename, const Pipe &pipe,
     return true;
 }
 
-bool loadFromFile(const std::string &filename, Pipe &pipe,
-                  CompressorStation &station)
+bool loadFromFile(const std::string &filename, Pipe &pipe, bool &hasPipe,
+                  CompressorStation &station, bool &hasStation)
 {
     std::ifstream in(filename);
     if (!in.is_open())
@@ -109,30 +116,55 @@ bool loadFromFile(const std::string &filename, Pipe &pipe,
 
     try
     {
-        std::string header;
-
-        if (!std::getline(in, header) || header != "[PIPE]")
-        {
-            throw std::runtime_error("Отсутствует или повреждён заголовок [PIPE]");
-        }
         Pipe loadedPipe;
-        loadedPipe.mark = readLine(in, "mark");
-        loadedPipe.lengthKm = parseDouble(readLine(in, "lengthKm"));
-        loadedPipe.diameterMm = parseInt(readLine(in, "diameterMm"));
-        loadedPipe.underRepair = parseBool(readLine(in, "underRepair"));
-
-        if (!std::getline(in, header) || header != "[STATION]")
-        {
-            throw std::runtime_error("Отсутствует или повреждён заголовок [STATION]");
-        }
         CompressorStation loadedStation;
-        loadedStation.name = readLine(in, "name");
-        loadedStation.totalShops = parseInt(readLine(in, "totalShops"));
-        loadedStation.shopsInOperation = parseInt(readLine(in, "shopsInOperation"));
-        loadedStation.stationClass = parseInt(readLine(in, "stationClass"));
+        bool pipeInFile = false;
+        bool stationInFile = false;
 
-        pipe = loadedPipe;
-        station = loadedStation;
+        std::string header;
+        if (!std::getline(in, header))
+        {
+            throw std::runtime_error("Файл пуст");
+        }
+
+        if (header == "[PIPE]")
+        {
+            loadedPipe.mark = readLine(in, "mark");
+            loadedPipe.lengthKm = parseDouble(readLine(in, "lengthKm"));
+            loadedPipe.diameterMm = parseInt(readLine(in, "diameterMm"));
+            loadedPipe.underRepair = parseBool(readLine(in, "underRepair"));
+            pipeInFile = true;
+
+            if (!std::getline(in, header))
+            {
+                header.clear(); // файл закончился: КС в нём нет
+            }
+        }
+
+        if (header == "[STATION]")
+        {
+            loadedStation.name = readLine(in, "name");
+            loadedStation.totalShops = parseInt(readLine(in, "totalShops"));
+            loadedStation.shopsInOperation = parseInt(readLine(in, "shopsInOperation"));
+            loadedStation.stationClass = parseInt(readLine(in, "stationClass"));
+            stationInFile = true;
+        }
+        else if (!pipeInFile || !header.empty())
+        {
+            throw std::runtime_error("Ожидался заголовок [PIPE] или [STATION], получено: '" + header + "'");
+        }
+
+        // загрузка заменяет текущее состояние целиком: чего нет в файле, того нет и в памяти
+        if (pipeInFile)
+        {
+            pipe = std::move(loadedPipe);
+        }
+        if (stationInFile)
+        {
+            station = std::move(loadedStation);
+        }
+        hasPipe = pipeInFile;
+        hasStation = stationInFile;
     }
     catch (const std::exception &ex)
     {
