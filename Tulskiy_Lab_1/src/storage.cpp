@@ -149,6 +149,7 @@ bool loadFromFile(const std::string &filename, Pipe &pipe, bool &hasPipe,
             loadedPipe.lengthKm = parseDouble(readLine(in, "lengthKm"));
             loadedPipe.diameterMm = parseInt(readLine(in, "diameterMm"));
             loadedPipe.underRepair = parseBool(readLine(in, "underRepair"));
+            checkPipe(loadedPipe);
             pipeInFile = true;
 
             if (!std::getline(in, header))
@@ -163,6 +164,7 @@ bool loadFromFile(const std::string &filename, Pipe &pipe, bool &hasPipe,
             loadedStation.totalShops = parseInt(readLine(in, "totalShops"));
             loadedStation.shopsInOperation = parseInt(readLine(in, "shopsInOperation"));
             loadedStation.stationClass = parseInt(readLine(in, "stationClass"));
+            checkStation(loadedStation);
             stationInFile = true;
         }
         else if (!pipeInFile || !header.empty())
