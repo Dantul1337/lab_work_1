@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <utility>
+#include <stdexcept>
 
 namespace
 {
@@ -58,6 +59,27 @@ namespace
         throw std::runtime_error("Некорректное булево значение: " + text);
     }
 
+        void checkPipe(const Pipe &p)
+    {
+        if (p.mark.empty())
+            throw std::runtime_error("Пустая километровая отметка");
+        if (!(p.lengthKm >= 0.001 && p.lengthKm <= 100000.0))
+            throw std::runtime_error("Длина трубы должна быть от 0.001 до 100000");
+        if (p.diameterMm < 1 || p.diameterMm > 100000)
+            throw std::runtime_error("Диаметр трубы должен быть от 1 до 100000");
+    }
+
+    void checkStation(const CompressorStation &s)
+    {
+        if (s.name.empty())
+            throw std::runtime_error("Пустое название КС");
+        if (s.totalShops < 1 || s.totalShops > 1000)
+            throw std::runtime_error("Количество цехов должно быть от 1 до 1000");
+        if (s.shopsInOperation < 0 || s.shopsInOperation > s.totalShops)
+            throw std::runtime_error("Цехов в работе должно быть от 0 до количества цехов");
+        if (s.stationClass < 1 || s.stationClass > 10)
+            throw std::runtime_error("Класс станции должен быть от 1 до 10");
+    }
 }
 
 bool saveToFile(const std::string &filename, const Pipe *pipe,
