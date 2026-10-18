@@ -11,7 +11,7 @@ struct Pipe
     bool underRepair = false;
 };
 
-Pipe inputPipe();
+void inputPipe(Pipe& pipe);
 
 void printPipe(const Pipe& pipe);
 
