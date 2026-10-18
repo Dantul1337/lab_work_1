@@ -5,20 +5,19 @@
 
 void inputPipe(Pipe &pipe)
 {
-    std::cout << "--- Ввод данных трубы --- \n";
+    std::cout << "--- Ввод данных трубы ---\n";
     pipe.mark = readNonEmptyLine("Километровая отметка (название участка): ");
     pipe.lengthKm = readDouble("Длина трубы, км (> 0): ", 0.001, 100000.0);
     pipe.diameterMm = readInt("Диаметр трубы, мм (> 0): ", 1, 100000);
     pipe.underRepair = readYesNo("Труба в ремонте?");
 }
 
-void inputPipe(Pipe &pipe)
+void printPipe(const Pipe &pipe)
 {
-    std::cout << "--- Ввод данных трубы --- \n";
-    pipe.mark = readNonEmptyLine("Километровая отметка (название участка): ");
-    pipe.lengthKm = readDouble("Длина трубы, км (> 0): ", 0.001, 100000.0);
-    pipe.diameterMm = readInt("Диаметр трубы, мм (> 0): ", 1, 100000);
-    pipe.underRepair = readYesNo("Труба в ремонте?");
+    std::cout << "Труба [" << pipe.mark << "]\n"
+              << "  Длина, км:      " << pipe.lengthKm << "\n"
+              << "  Диаметр, мм:    " << pipe.diameterMm << "\n"
+              << "  Статус:         " << (pipe.underRepair ? "в ремонте" : "не в ремонте") << "\n";
 }
 
 void editPipeRepairStatus(Pipe &pipe)
