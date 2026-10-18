@@ -3,16 +3,13 @@
 
 #include <iostream>
 
-Pipe inputPipe()
+void inputPipe(Pipe &pipe)
 {
-    Pipe pipe;
     std::cout << "--- Ввод данных трубы --- \n";
     pipe.mark = readNonEmptyLine("Километровая отметка (название участка): ");
     pipe.lengthKm = readDouble("Длина трубы, км (> 0): ", 0.001, 100000.0);
     pipe.diameterMm = readInt("Диаметр трубы, мм (> 0): ", 1, 100000);
     pipe.underRepair = readYesNo("Труба в ремонте?");
-
-    return pipe;
 }
 
 void printPipe(const Pipe &pipe)

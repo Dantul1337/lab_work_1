@@ -28,7 +28,7 @@ namespace
 
     void handleAddPipe(Pipe &pipe, bool &pipeExists)
     {
-        pipe = inputPipe();
+        inputPipe(pipe); // было: pipe = inputPipe();
         pipeExists = true;
         std::cout << "Труба добавлена.\n";
     }
