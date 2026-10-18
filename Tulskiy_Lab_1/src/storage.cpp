@@ -7,12 +7,6 @@
 
 namespace
 {
-
-    void writeLine(std::ofstream &out, const std::string &key, const std::string &value)
-    {
-        out << key << "=" << value << "\n";
-    }
-
     std::string readLine(std::ifstream &in, const std::string &expectedKey)
     {
         std::string line;
@@ -79,19 +73,19 @@ bool saveToFile(const std::string &filename, const Pipe *pipe,
     if (pipe)
     {
         out << "[PIPE]\n";
-        writeLine(out, "mark", pipe->mark);
-        writeLine(out, "lengthKm", std::to_string(pipe->lengthKm));
-        writeLine(out, "diameterMm", std::to_string(pipe->diameterMm));
-        writeLine(out, "underRepair", pipe->underRepair ? "1" : "0");
+        out << "mark=" << pipe->mark << "\n";
+        out << "lengthKm=" << std::to_string(pipe->lengthKm) << "\n";
+        out << "diameterMm=" << std::to_string(pipe->diameterMm) << "\n";
+        out << "underRepair=" << (pipe->underRepair ? "1" : "0") << "\n";
     }
 
     if (station)
     {
         out << "[STATION]\n";
-        writeLine(out, "name", station->name);
-        writeLine(out, "totalShops", std::to_string(station->totalShops));
-        writeLine(out, "shopsInOperation", std::to_string(station->shopsInOperation));
-        writeLine(out, "stationClass", std::to_string(station->stationClass));
+        out << "name=" << station->name << "\n";
+        out << "totalShops=" << std::to_string(station->totalShops) << "\n";
+        out << "shopsInOperation=" << std::to_string(station->shopsInOperation) << "\n";
+        out << "stationClass=" << std::to_string(station->stationClass) << "\n";
     }
 
     if (!out.good())

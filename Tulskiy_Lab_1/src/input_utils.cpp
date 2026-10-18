@@ -1,36 +1,23 @@
 #include "input_utils.h"
 
+#include <algorithm>
+#include <cctype>
 #include <iostream>
 #include <limits>
 #include <sstream>
-
-void clearInputStream(){
-    std::cin.clear();
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-}
-
-namespace{
-    std::string trim(const std::string& text){
-        const std::string whitespace = " \t\r\n";
-        const size_t start = text.find_first_not_of(whitespace);
-        if(start == std::string::npos){
-            return "";
-        }
-        const size_t end = text.find_last_not_of(whitespace);
-        return text.substr(start, end - start + 1);
-    }
-}
 
 std::string readNonEmptyLine(const std::string& prompt){
     std::string line;
     while (true){
         std::cout << prompt;
         if(!std::getline(std::cin, line)){
-            clearInputStream();
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             continue;
         }
-        line = trim(line);
-        if(!line.empty()){
+        const bool blank = std::all_of(line.begin(), line.end(),
+                                       [](unsigned char c){ return std::isspace(c); });
+        if(!blank){
             return line;
         }
         std::cout << "Значение не может быть пустым. Попробуйте ещё раз.\n";
@@ -74,11 +61,16 @@ double readDouble(const std::string& prompt, double minValue, double maxValue){
 bool readYesNo(const std::string& prompt){
     while(true){
         std::string line = readNonEmptyLine(prompt + " (y/n): ");
-        if(line == "y" || line == "Y"){
-            return true;
-        }
-        if (line == "n" || line == "N"){
-            return false;
+        std::istringstream iss(line);
+        char answer;
+        char leftover;
+        if((iss >> answer) && !(iss >> leftover)){
+            if(answer == 'y' || answer == 'Y'){
+                return true;
+            }
+            if(answer == 'n' || answer == 'N'){
+                return false;
+            }
         }
         std::cout << "Введите 'y' или 'n'.\n";
     }

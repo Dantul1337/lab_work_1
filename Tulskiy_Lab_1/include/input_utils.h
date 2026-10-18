@@ -9,6 +9,4 @@ int readInt(const std::string& prompt, int minValue, int maxValue);
 double readDouble(const std::string& prompt, double minValue, double maxValue);
 bool readYesNo(const std::string& prompt);
 
-void clearInputStream();
-
 #endif
