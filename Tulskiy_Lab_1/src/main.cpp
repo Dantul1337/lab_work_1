@@ -22,7 +22,11 @@ struct CompressorStation
 std::string readLine()
 {
     std::string line;
-    std::getline(std::cin, line);
+    if (!std::getline(std::cin, line))
+    {
+        std::cout << "\nВвод завершён. Выход.\n";
+        std::exit(0);
+    }
     return line;
 }
 
@@ -109,6 +113,7 @@ Pipe readPipe()
     pipe.length = readDouble("Длина (км): ", 0.001, 10000);
     pipe.diameter = readInt("Диаметр (мм): ", 1, 3000);
     pipe.underRepair = readBool("Труба в ремонте?");
+    return pipe;
 }
 
 void printPipe(const Pipe &pipe)
@@ -333,7 +338,7 @@ int main()
         case 3:
             if (!hasPipe && !hasStation)
             {
-                std::cout << "Объектов нет";
+                std::cout << "Объектов нет\n";
             }
             if (hasPipe)
             {
@@ -361,7 +366,9 @@ int main()
                 std::cout << "КС не создана!\n";
             break;
         case 6:
-            if (saveToFile(fileName, pipe, hasPipe, station, hasStation))
+            if (!hasPipe && !hasStation)
+                std::cout << "Нечего сохранять.\n";
+            else if (saveToFile(fileName, pipe, hasPipe, station, hasStation))
                 std::cout << "Сохранено в " << fileName << "\n";
             else
                 std::cout << "Ошибка записи в файл!\n";
