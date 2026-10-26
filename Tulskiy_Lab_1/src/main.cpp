@@ -1,5 +1,7 @@
 #include <string>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 struct Pipe
 {
@@ -190,7 +192,120 @@ void printMenu()
               << "3. Просмотр всех объектов\n"
               << "4. Редактировать трубу\n"
               << "5. Редактировать КС\n"
+              << "6. Сохранить\n"
+              << "7. Загрузить\n"
               << "0. Выход\n";
+}
+
+void savePipe(std::ofstream &file, const Pipe &pipe)
+{
+    file << pipe.name << "\n"
+         << pipe.length << " " << pipe.diameter << " " << pipe.underRepair << "\n";
+}
+
+void saveStation(std::ofstream &file, const CompressorStation &station)
+{
+    file << station.name << "\n"
+         << station.totalShops << " " << station.activeShops << " "
+         << station.stationClass << "\n";
+}
+
+bool saveToFile(const std::string &fileName, const Pipe &pipe, bool hasPipe, const CompressorStation &station, bool hasStation)
+{
+    std::ofstream file(fileName);
+    if (!file)
+    {
+        return false;
+    }
+    if (hasPipe)
+    {
+        file << "PIPE\n";
+        savePipe(file, pipe);
+    }
+    if (hasStation)
+    {
+        file << "STATION\n";
+        saveStation(file, station);
+    }
+    return file.good();
+}
+
+bool loadPipe(std::ifstream &file, Pipe &pipe)
+{
+    std::string numbers;
+    if (!std::getline(file, pipe.name) || pipe.name.empty() || !std::getline(file, numbers))
+    {
+        return false;
+    }
+    std::istringstream stream(numbers);
+    int repair;
+    if (!(stream >> pipe.length >> pipe.diameter >> repair))
+    {
+        return false;
+    }
+    pipe.underRepair = (repair == 1);
+    return pipe.length > 0 && pipe.diameter > 0 && (repair == 0 || repair == 1);
+}
+
+bool loadStation(std::ifstream &file, CompressorStation &station)
+{
+    std::string numbers;
+    if (!std::getline(file, station.name) || station.name.empty() || !std::getline(file, numbers))
+    {
+        return false;
+    }
+    std::istringstream stream(numbers);
+    if (!(stream >> station.totalShops >> station.activeShops >> station.stationClass))
+    {
+        return false;
+    }
+    return station.totalShops >= 1 && station.activeShops >= 0 && station.activeShops <= station.totalShops && station.stationClass >= 1 && station.stationClass <= 5;
+}
+
+bool loadFromFile(const std::string &fileName, Pipe &pipe, bool &hasPipe, CompressorStation &station, bool &hasStation)
+{
+    std::ifstream file(fileName);
+    if (!file)
+    {
+        return false;
+    }
+    Pipe newPipe;
+    CompressorStation newStation;
+    bool newHasPipe = false;
+    bool newHasStation = false;
+    std::string header;
+    while (std::getline(file, header))
+    {
+        if (header == "PIPE" && !newHasPipe)
+        {
+            if (!loadPipe(file, newPipe))
+            {
+                return false;
+            }
+            newHasPipe = true;
+        }
+        else if (header == "STATION" && !newHasStation)
+        {
+            if (!loadStation(file, newStation))
+            {
+                return false;
+            }
+            newHasStation = true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    if (!newHasPipe && !newHasStation)
+    {
+        return false;
+    }
+    pipe = newPipe;
+    hasPipe = newHasPipe;
+    station = newStation;
+    hasStation = newHasStation;
+    return true;
 }
 
 int main()
@@ -199,11 +314,12 @@ int main()
     CompressorStation station;
     bool hasPipe = false;
     bool hasStation = false;
+    const std::string fileName = "data.txt";
 
     while (true)
     {
         printMenu();
-        int choice = readInt("Выберите пункт: ", 0, 5);
+        int choice = readInt("Выберите пункт: ", 0, 7);
         switch (choice)
         {
         case 1:
@@ -243,6 +359,18 @@ int main()
                 editStation(station);
             else
                 std::cout << "КС не создана!\n";
+            break;
+        case 6:
+            if (saveToFile(fileName, pipe, hasPipe, station, hasStation))
+                std::cout << "Сохранено в " << fileName << "\n";
+            else
+                std::cout << "Ошибка записи в файл!\n";
+            break;
+        case 7:
+            if (loadFromFile(fileName, pipe, hasPipe, station, hasStation))
+                std::cout << "Загружено из " << fileName << "\n";
+            else
+                std::cout << "Не удалось загрузить: файл отсутствует или повреждён.\n";
             break;
         case 0:
             return 0;
