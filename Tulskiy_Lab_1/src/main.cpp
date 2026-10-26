@@ -143,37 +143,110 @@ void printStation(const CompressorStation &station)
               << "Класс станции: " << station.stationClass << "\n";
 }
 
-void startShop(CompressorStation& station){
-    if (station.activeShops >= station.totalShops){
+void startShop(CompressorStation &station)
+{
+    if (station.activeShops >= station.totalShops)
+    {
         std::cout << "Все цеха уже работают!\n";
     }
-    else{
+    else
+    {
         ++station.activeShops;
         std::cout << "Цех запущен.\n";
     }
 }
 
-void stopShop(CompressorStation& station){
-    if (station.activeShops <= 0){
+void stopShop(CompressorStation &station)
+{
+    if (station.activeShops <= 0)
+    {
         std::cout << "Все цеха уже остановлены!\n";
     }
-    else{
+    else
+    {
         --station.activeShops;
         std::cout << "Цех остановлен.\n";
     }
 }
 
-void editStation(CompressorStation& station){
+void editStation(CompressorStation &station)
+{
     int choice = readInt("1 - запустить цех, 2 - остановить цех: ", 1, 2);
-    if (choice == 1){
+    if (choice == 1)
+    {
         startShop(station);
     }
-    else{
+    else
+    {
         stopShop(station);
     }
 }
 
+void printMenu()
+{
+    std::cout << "\n===== МЕНЮ =====\n"
+              << "1. Добавить трубу\n"
+              << "2. Добавить КС\n"
+              << "3. Просмотр всех объектов\n"
+              << "4. Редактировать трубу\n"
+              << "5. Редактировать КС\n"
+              << "0. Выход\n";
+}
+
 int main()
 {
+    Pipe pipe;
+    CompressorStation station;
+    bool hasPipe = false;
+    bool hasStation = false;
+
+    while (true)
+    {
+        printMenu();
+        int choice = readInt("Выберите пункт: ", 0, 5);
+        switch (choice)
+        {
+        case 1:
+            pipe = readPipe();
+            hasPipe = true;
+            break;
+        case 2:
+            station = readStation();
+            hasStation = true;
+            break;
+        case 3:
+            if (!hasPipe && !hasStation)
+            {
+                std::cout << "Объектов нет";
+            }
+            if (hasPipe)
+            {
+                printPipe(pipe);
+            }
+            if (hasStation)
+            {
+                printStation(station);
+            }
+            break;
+        case 4:
+            if (hasPipe)
+            {
+                editPipe(pipe);
+            }
+            else
+            {
+                std::cout << "Труба не создана!\n";
+            }
+            break;
+        case 5:
+            if (hasStation)
+                editStation(station);
+            else
+                std::cout << "КС не создана!\n";
+            break;
+        case 0:
+            return 0;
+        }
+    }
     return 0;
 }
