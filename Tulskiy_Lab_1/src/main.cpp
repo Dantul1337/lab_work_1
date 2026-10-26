@@ -24,7 +24,7 @@ std::string readLine()
     return line;
 }
 
-std::string readNonEmptyString(const std::string& prompt)
+std::string readNonEmptyString(const std::string &prompt)
 {
     while (true)
     {
@@ -38,7 +38,7 @@ std::string readNonEmptyString(const std::string& prompt)
     }
 }
 
-int readInt(const std::string& prompt, int min, int max)
+int readInt(const std::string &prompt, int min, int max)
 {
     while (true)
     {
@@ -60,7 +60,7 @@ int readInt(const std::string& prompt, int min, int max)
     }
 }
 
-double readDouble(const std::string& prompt, double min, double max)
+double readDouble(const std::string &prompt, double min, double max)
 {
     while (true)
     {
@@ -82,7 +82,7 @@ double readDouble(const std::string& prompt, double min, double max)
     }
 }
 
-bool readBool(const std::string& prompt)
+bool readBool(const std::string &prompt)
 {
     while (true)
     {
@@ -109,7 +109,7 @@ Pipe readPipe()
     pipe.underRepair = readBool("Труба в ремонте?");
 }
 
-void printPipe(const Pipe& pipe)
+void printPipe(const Pipe &pipe)
 {
     std::cout << "--- Труба ---\n"
               << "Название: " << pipe.name << "\n"
@@ -118,9 +118,59 @@ void printPipe(const Pipe& pipe)
               << "В ремонте: " << (pipe.underRepair ? "да" : "нет") << "\n";
 }
 
-void editPipe(Pipe& pipe){
+void editPipe(Pipe &pipe)
+{
     pipe.underRepair = readBool("Труба в ремонте?");
     std::cout << "Признак изменён.\n";
+}
+
+CompressorStation readStation()
+{
+    CompressorStation station;
+    station.name = readNonEmptyString("Название КС: ");
+    station.totalShops = readInt("Количество цехов: ", 1, 1000);
+    station.activeShops = readInt("Количество цехов в работе: ", 0, station.totalShops);
+    station.stationClass = readInt("Класс станции (1-5): ", 1, 5);
+    return station;
+}
+
+void printStation(const CompressorStation &station)
+{
+    std::cout << "--- КС ---\n"
+              << "Название: " << station.name << "\n"
+              << "Цехов всего: " << station.totalShops << "\n"
+              << "Цехов в работе: " << station.activeShops << "\n"
+              << "Класс станции: " << station.stationClass << "\n";
+}
+
+void startShop(CompressorStation& station){
+    if (station.activeShops >= station.totalShops){
+        std::cout << "Все цеха уже работают!\n";
+    }
+    else{
+        ++station.activeShops;
+        std::cout << "Цех запущен.\n";
+    }
+}
+
+void stopShop(CompressorStation& station){
+    if (station.activeShops <= 0){
+        std::cout << "Все цеха уже остановлены!\n";
+    }
+    else{
+        --station.activeShops;
+        std::cout << "Цех остановлен.\n";
+    }
+}
+
+void editStation(CompressorStation& station){
+    int choice = readInt("1 - запустить цех, 2 - остановить цех: ", 1, 2);
+    if (choice == 1){
+        startShop(station);
+    }
+    else{
+        stopShop(station);
+    }
 }
 
 int main()
