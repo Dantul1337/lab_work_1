@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <windows.h>
 
 struct Pipe
 {
@@ -22,15 +23,19 @@ struct CompressorStation
 std::string readLine()
 {
     std::string line;
-    if (!std::getline(std::cin, line))
+    while (true)
     {
-        std::cout << "\nВвод завершён. Выход.\n";
-        std::exit(0);
+        if (std::getline(std::cin, line))
+        {
+            return line;
+        }
+        std::cout << "\nОшибка ввода! Пожалуйста, повторите попытку: ";
+        std::cin.clear();
+        // std::cin.ignore(10000, '\n'); 
     }
-    return line;
 }
 
-std::string readNonEmptyString(const std::string &prompt)
+std::string readNonEmptyString(const std::string& prompt)
 {
     while (true)
     {
@@ -44,7 +49,7 @@ std::string readNonEmptyString(const std::string &prompt)
     }
 }
 
-int readInt(const std::string &prompt, int min, int max)
+int readInt(const std::string& prompt, int min, int max)
 {
     while (true)
     {
@@ -66,7 +71,7 @@ int readInt(const std::string &prompt, int min, int max)
     }
 }
 
-double readDouble(const std::string &prompt, double min, double max)
+double readDouble(const std::string& prompt, double min, double max)
 {
     while (true)
     {
@@ -88,7 +93,7 @@ double readDouble(const std::string &prompt, double min, double max)
     }
 }
 
-bool readBool(const std::string &prompt)
+bool readBool(const std::string& prompt)
 {
     while (true)
     {
@@ -116,16 +121,16 @@ Pipe readPipe()
     return pipe;
 }
 
-void printPipe(const Pipe &pipe)
+void printPipe(const Pipe& pipe)
 {
     std::cout << "--- Труба ---\n"
-              << "Название: " << pipe.name << "\n"
-              << "Длина: " << pipe.length << " км\n"
-              << "Диаметр: " << pipe.diameter << " мм\n"
-              << "В ремонте: " << (pipe.underRepair ? "да" : "нет") << "\n";
+        << "Название: " << pipe.name << "\n"
+        << "Длина: " << pipe.length << " км\n"
+        << "Диаметр: " << pipe.diameter << " мм\n"
+        << "В ремонте: " << (pipe.underRepair ? "да" : "нет") << "\n";
 }
 
-void editPipe(Pipe &pipe)
+void editPipe(Pipe& pipe)
 {
     pipe.underRepair = readBool("Труба в ремонте?");
     std::cout << "Признак изменён.\n";
@@ -141,16 +146,16 @@ CompressorStation readStation()
     return station;
 }
 
-void printStation(const CompressorStation &station)
+void printStation(const CompressorStation& station)
 {
     std::cout << "--- КС ---\n"
-              << "Название: " << station.name << "\n"
-              << "Цехов всего: " << station.totalShops << "\n"
-              << "Цехов в работе: " << station.activeShops << "\n"
-              << "Класс станции: " << station.stationClass << "\n";
+        << "Название: " << station.name << "\n"
+        << "Цехов всего: " << station.totalShops << "\n"
+        << "Цехов в работе: " << station.activeShops << "\n"
+        << "Класс станции: " << station.stationClass << "\n";
 }
 
-void startShop(CompressorStation &station)
+void startShop(CompressorStation& station)
 {
     if (station.activeShops >= station.totalShops)
     {
@@ -163,7 +168,7 @@ void startShop(CompressorStation &station)
     }
 }
 
-void stopShop(CompressorStation &station)
+void stopShop(CompressorStation& station)
 {
     if (station.activeShops <= 0)
     {
@@ -176,7 +181,7 @@ void stopShop(CompressorStation &station)
     }
 }
 
-void editStation(CompressorStation &station)
+void editStation(CompressorStation& station)
 {
     int choice = readInt("1 - запустить цех, 2 - остановить цех: ", 1, 2);
     if (choice == 1)
@@ -192,30 +197,30 @@ void editStation(CompressorStation &station)
 void printMenu()
 {
     std::cout << "\n===== МЕНЮ =====\n"
-              << "1. Добавить трубу\n"
-              << "2. Добавить КС\n"
-              << "3. Просмотр всех объектов\n"
-              << "4. Редактировать трубу\n"
-              << "5. Редактировать КС\n"
-              << "6. Сохранить\n"
-              << "7. Загрузить\n"
-              << "0. Выход\n";
+        << "1. Добавить трубу\n"
+        << "2. Добавить КС\n"
+        << "3. Просмотр всех объектов\n"
+        << "4. Редактировать трубу\n"
+        << "5. Редактировать КС\n"
+        << "6. Сохранить\n"
+        << "7. Загрузить\n"
+        << "0. Выход\n";
 }
 
-void savePipe(std::ofstream &file, const Pipe &pipe)
+void savePipe(std::ofstream& file, const Pipe& pipe)
 {
     file << pipe.name << "\n"
-         << pipe.length << " " << pipe.diameter << " " << pipe.underRepair << "\n";
+        << pipe.length << " " << pipe.diameter << " " << pipe.underRepair << "\n";
 }
 
-void saveStation(std::ofstream &file, const CompressorStation &station)
+void saveStation(std::ofstream& file, const CompressorStation& station)
 {
     file << station.name << "\n"
-         << station.totalShops << " " << station.activeShops << " "
-         << station.stationClass << "\n";
+        << station.totalShops << " " << station.activeShops << " "
+        << station.stationClass << "\n";
 }
 
-bool saveToFile(const std::string &fileName, const Pipe &pipe, bool hasPipe, const CompressorStation &station, bool hasStation)
+bool saveToFile(const std::string& fileName, const Pipe& pipe, bool hasPipe, const CompressorStation& station, bool hasStation)
 {
     std::ofstream file(fileName);
     if (!file)
@@ -235,7 +240,7 @@ bool saveToFile(const std::string &fileName, const Pipe &pipe, bool hasPipe, con
     return file.good();
 }
 
-bool loadPipe(std::ifstream &file, Pipe &pipe)
+bool loadPipe(std::ifstream& file, Pipe& pipe)
 {
     std::string numbers;
     if (!std::getline(file, pipe.name) || pipe.name.empty() || !std::getline(file, numbers))
@@ -252,22 +257,22 @@ bool loadPipe(std::ifstream &file, Pipe &pipe)
     return pipe.length > 0 && pipe.diameter > 0 && (repair == 0 || repair == 1);
 }
 
-bool loadStation(std::ifstream &file, CompressorStation &station)
+bool loadStation(std::ifstream& file, CompressorStation& station)
 {
     std::string numbers;
-    if (!std::getline(file, station.name) || station.name.empty() || !std::getline(file, numbers))
+    if (!std::getline(file, station.name) || station.name.empty())
     {
         return false;
     }
-    std::istringstream stream(numbers);
-    if (!(stream >> station.totalShops >> station.activeShops >> station.stationClass))
+    //std::istringstream stream(numbers);
+    if (!(file >> station.totalShops >> station.activeShops >> station.stationClass))
     {
         return false;
     }
     return station.totalShops >= 1 && station.activeShops >= 0 && station.activeShops <= station.totalShops && station.stationClass >= 1 && station.stationClass <= 5;
 }
 
-bool loadFromFile(const std::string &fileName, Pipe &pipe, bool &hasPipe, CompressorStation &station, bool &hasStation)
+bool loadFromFile(const std::string& fileName, Pipe& pipe, bool& hasPipe, CompressorStation& station, bool& hasStation)
 {
     std::ifstream file(fileName);
     if (!file)
@@ -315,6 +320,9 @@ bool loadFromFile(const std::string &fileName, Pipe &pipe, bool &hasPipe, Compre
 
 int main()
 {
+    SetConsoleCP(65001);
+    SetConsoleOutputCP(65001);
+
     Pipe pipe;
     CompressorStation station;
     bool hasPipe = false;
